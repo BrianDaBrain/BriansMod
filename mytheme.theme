@@ -1,0 +1,27 @@
+clockformat:"%Y-%m-%d %a %I:%M %p";
+group_highlight_method:"line";
+groupbox_margin:3;
+wallpaper:"~/.config/qtile/background_image";
+wallpaper_mode:"fill";
+bar_margin:[2, 4, 4, 4];
+bar_border_width:[2, 0, 2, 0];
+bar_border_colors:"#000000";
+
+blue:"#2c567c";
+black:"#000000";
+white:"#ffffff";
+gold:"#d1d173";
+
+barcolor:blue;
+
+widget_defaults {
+    font:"Roboto, NotoSans Nerd Font";
+    fontsize:16;
+    padding:3;
+}
+
+window_defaults {
+    border_focus:blue;
+    border_width:4;
+    margin:4;
+}
