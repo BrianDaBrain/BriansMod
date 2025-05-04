@@ -1,0 +1,71 @@
+import ast, string, os
+
+def parsetheme(filename):
+    result = {}
+    current_block = None
+    with open(filename, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('//'):
+                continue  # skip empty lines and comments
+            if line.endswith('{'):
+                current_block = line[:-1].strip()
+                result[current_block] = {}
+            elif line == '}':
+                current_block = None
+            elif current_block:
+                if ':' in line:
+                    key, val = line.split(':', 1)
+                    key = key.strip()
+                    val = val.strip().rstrip(';')
+                    result[current_block][key] = ast.literal_eval(val)
+            elif line[1] in string.ascii_letters:
+                key, val = line.split(':')
+                key = key.strip()
+                val = val.strip().rstrip(';')
+                if key in result:
+                    print("\nbriansmod.style Warning: " + key + " defined twice in theme " + filename + ".\n")
+                else:
+                    result[key] = ast.literal_eval(val)
+    return result
+
+def themepath(themename):
+    configpath = os.getenv("$XDG_CONFIG_HOME")
+    if configpath is None:
+        return os.path.expanduser("~/.config/qtile/" + themename)
+    else:
+        return configpath + "/qtile/" + themename
+
+def ApplyTheme(configtarget, themefile):
+    themefile = themepath(themefile)
+    theme = parsetheme(os.path.expandvars(themefile))
+    try:        
+        for attr in theme.keys():
+            if '.' in attr:
+                namelist = attr.split('.').reverse()
+                target = configtarget
+                while len(namelist) > 1:
+                    nm = namelist.pop()
+                    if '[' in nm:
+                        idnm, idex = nm.split('[')
+                        idex = ast.literal_eval(idex.rstrip(']'))
+                        target = getattr(target, nm)[idex]
+                    else:
+                        target = getattr(target, nm)
+                nm = namelist.pop()
+                if '[' in nm:
+                    idnm, idex = nm.split('[')
+                    idex = ast.literal_eval(idex.rstrip(']'))
+                    getattr(target, idnm)[idex] = theme[attr]
+                else:
+                    setattr(target, nm, theme[attr])
+            else:
+                if '[' in attr:
+                    idnm, idex = attr.split('[')
+                    idex = ast.literal_eval(idex.rstrip(']'))
+                    getattr(configtarget, idnm)[idex] = theme[attr]
+                else:
+                    setattr(configtarget, attr, theme[attr])
+    except IndexError: raise IndexError("Your theme file dun goofed and tried to index out of bounds of a list. Fix it!")
+
+

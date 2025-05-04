@@ -1,0 +1,10 @@
+
+//
+//widget_defaults = dict(
+//
+widget_defaults {
+    font:"Roboto, NotoSans Nerd Font";
+    fontsize:18;
+    padding:3;
+}
+
